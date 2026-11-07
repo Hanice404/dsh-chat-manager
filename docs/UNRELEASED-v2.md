@@ -1,6 +1,6 @@
 # Unreleased v2 preparation
 
-This maintenance branch prepares package version 2.0.0-alpha.1; it is not a
+This maintenance branch prepares package version 2.0.0-alpha.2; it is not a
 published release. The generated client must be rebuilt and verified
 from this source before acceptance. Publication workflows remain unchanged and
 are not permission to publish. Do not install this working tree into a daily profile.

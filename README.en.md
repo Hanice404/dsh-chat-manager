@@ -1,6 +1,6 @@
 # DSH Chat Manager
 
-**This branch prepares the independent v2 candidate `2.0.0-alpha.1`. It targets official RC1; isolated Windows UI acceptance passed and it remains unpublished.**
+**This branch prepares the independent v2 candidate `2.0.0-alpha.2`. It targets official RC1; isolated Windows UI acceptance passed and it remains unpublished.**
 See the [latest stable Release](https://github.com/WSL043/dsh-chat-manager/releases/latest); install the npm `latest` stable tag.
 This working tree is a different candidate and inherits none of that release's RC or old Portable compatibility claims.
 

@@ -1,6 +1,6 @@
 # DSH Chat Manager · 聊天与会话管理器
 
-**本分支正在准备独立插件 v2 候选 `2.0.0-alpha.1`，已通过官方 RC1 Windows 隔离 UI 验收，尚未发布。**
+**本分支正在准备独立插件 v2 候选 `2.0.0-alpha.2`，已通过官方 RC1 Windows 隔离 UI 验收，尚未发布。**
 稳定发布版见 [最新正式 Release](https://github.com/WSL043/dsh-chat-manager/releases/latest)，安装使用 npm `latest`。
 本工作树不是该发布包，也不继承它的 RC 或旧 Portable 兼容承诺。
 

@@ -9,7 +9,7 @@ test('unpublished v2 has a fixed source-contract target and no inherited compati
   const manifest = JSON.parse(await read('package.json'))
   const compatibility = JSON.parse(await read('compatibility.json'))
   assert.equal(manifest.name, 'dsh-chat-manager')
-  assert.equal(manifest.version, '2.0.0-alpha.1')
+  assert.equal(manifest.version, '2.0.0-alpha.2')
   assert.equal(manifest.publishConfig?.tag, manifest.version.includes('-') ? 'next' : 'latest')
   assert.equal(manifest.license, 'MIT')
   assert.equal(manifest.dsh.bundle.patch, './cordis.patch.yml')

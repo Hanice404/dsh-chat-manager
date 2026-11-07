@@ -1,4 +1,4 @@
-> Unpublished candidate: dsh-chat-manager@2.0.0-alpha.1. Fixed target: DSH 0.2.2-rc.1 at 66491b05e3f05ad35bcdd4f6cd7ed26041d9e3db, Cordis 4.1.0. RC1 isolated Windows UI acceptance passed using generated fixtures, without validating an existing user installation or real-model calls; this candidate remains unpublished and no other cores are claimed.
+> Unpublished candidate: dsh-chat-manager@2.0.0-alpha.2. Fixed target: DSH 0.2.2-rc.1 at 66491b05e3f05ad35bcdd4f6cd7ed26041d9e3db, Cordis 4.1.0. RC1 isolated Windows UI acceptance passed using generated fixtures, without validating an existing user installation or real-model calls; this candidate remains unpublished and no other cores are claimed.
 
 # Agent maintenance and installation boundary
 
