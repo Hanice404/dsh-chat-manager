@@ -196,7 +196,7 @@ $releaseBody = [System.IO.File]::ReadAllText($NotesPath, [System.Text.Encoding]:
 if ([string]::IsNullOrWhiteSpace($releaseBody)) { Fail "release notes are empty: $NotesPath" }
 $release = Invoke-GitHub -Method 'POST' -Uri "$repoApi/releases" -Payload @{
   tag_name   = $Tag
-  name       = "v$Version · DSH 0.2.2-rc.1"
+  name       = "v$Version " + [char]0x00B7 + " DSH 0.2.2-rc.1"
   body       = $releaseBody
   draft      = $false
   prerelease = $true
