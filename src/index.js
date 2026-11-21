@@ -5,7 +5,7 @@ import {
 } from './host/delete-session.mjs'
 import {
   createArchiveRequestHandlers,
-  deleteSessionAndReconcileArchive,
+  reconcileDeletedArchive,
   searchArchivedSessions,
 } from './host/archive-manager.mjs'
 
@@ -22,22 +22,21 @@ export function apply(ctx) {
     throw new Error('dsh-session-delete requires the per-session JSONL persistence backend')
   }
 
-  const deleteSession = sessionId => deleteSessionSafely({
+  const deleteSession = (sessionId, expectedArchived) => deleteSessionSafely({
     sessions: ctx.sessions,
     agents: ctx.agents,
     workspaceRegistry: ctx.workspaceRegistry,
     sessionPersistence: ctx.sessionPersistence,
-  }, { sessionRoot, sessionId })
+    sessionActivity: sessionId => ctx.waterfall('workspace/session-activity', { sessionId }, async () => []),
+    reconcileArchive: (id, result) => reconcileDeletedArchive({ workspaceRegistry: ctx.workspaceRegistry }, id, result),
+  }, { sessionRoot, sessionId, expectedArchived })
   // The official fence also admits the desktop app's forwarded requests; see hostRequestFence.
   // `connection` is not injected: some hosts register it after this plugin applies, and reading an
   // uninjected property throws in Cordis 4. Resolve it per request so a late connection is honored.
   const isTrustedRequest = req => hostRequestFence(currentConnection(ctx))(req)
   const handler = createDeleteRequestHandler({
     isTrustedRequest,
-    deleteSession: sessionId => deleteSessionAndReconcileArchive({
-      workspaceRegistry: ctx.workspaceRegistry,
-      deleteSession,
-    }, sessionId),
+    deleteSession,
   })
   const archiveHandlers = createArchiveRequestHandlers({
     isTrustedRequest,
@@ -72,7 +71,7 @@ export {
 
 export {
   createArchiveRequestHandlers,
-  deleteSessionAndReconcileArchive,
+  reconcileDeletedArchive,
   restoreArchivedSession,
   searchArchivedSessions,
 } from './host/archive-manager.mjs'
