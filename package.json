@@ -1,6 +1,6 @@
 {
   "name": "dsh-chat-manager",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "DeepSeek Harness archive content search and confirmed cleanup of unloaded local sessions",
   "type": "module",
   "main": "./src/index.js",

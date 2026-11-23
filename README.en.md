@@ -16,7 +16,7 @@ DSH provides the workspace, regular search, archive, restore, and the shared ses
 Open **Plugins → Add plugin** in official DeepSeek Harness 0.2.2-rc.1 and paste this package spec:
 
 ```text
-dsh-chat-manager@2.1.0
+dsh-chat-manager@2.1.1
 ```
 
 Check the [qualified DSH versions](compatibility.json) for newer v2 releases. The [v1 maintenance line](https://github.com/WSL043/dsh-chat-manager/tree/stable) documents earlier versions.

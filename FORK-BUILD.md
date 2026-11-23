@@ -1,4 +1,4 @@
-# Fork build 2.1.0 — macOS / DSH 0.2.2-rc.5 兼容改造
+# Fork build 2.1.1 — macOS / DSH 0.2.2-rc.5 兼容改造
 
 ## 基线
 
@@ -74,11 +74,35 @@ curl -s -o /dev/null -w '%{http_code}\n' -X POST http://127.0.0.1:<port>/plugins
 curl -s -o /dev/null -w '%{http_code}\n' -X POST http://127.0.0.1:<port>/plugins/dsh-session-delete/bogus
 ```
 
+## 2.1.1：面板不出现的根因与修复
+
+`shell.overlay` 的注册项**就是槽位条目**，根标准数据源（`useSessions` / `useWorkspaces`，
+由 `ui-session` / `ui-workspace` 用 `slots.provideRoot({ hooks })` 发布）只作为该条目组件
+自身的 props 传入。2.1.0 的 `ArchivePanel` 渲染 `ArchiveSettings` 时只传 `compact`，
+hooks 没有转发下去 → `useSessions(s => s)` 抛 `TypeError` → React 渲染失败、overlay 层空白，
+表现为「菜单项在，点了没反应」。`settings.section` 那条入口不受影响，因为那里
+`ArchiveSettings` 本身就是条目组件。
+
+修复：`ArchivePanel(props)` 转发 `{ ...props, compact: true }`；另加 `PanelBoundary`
+错误边界，渲染异常时在弹窗内显示原因，不再静默空白。
+
+### 这条路径的自动化验证（不需要人工点击）
+
+用真实 React 18.3.1 + `react-dom/server` 直接渲染槽位条目，宿主 props 用桩提供：
+
+| 场景 | 2.1.0 | 2.1.1 |
+| --- | --- | --- |
+| 面板未打开 | `""` | `""` |
+| 打开 + 转发 hooks | `THREW: useSessions is not a function` | 渲染出搜索框、归档会话行（标题/工作区）、取消归档与永久删除按钮、关闭按钮 |
+
+```sh
+# 复现脚本（自建临时目录，装 react/react-dom 后运行）
+BUNDLE=<仓库>/lib/client.js node render-test.mjs
+```
+
 ## 仍未验证 / 已知限制
 
-- 本机没有可用的页面自动化通道（未开 CDP），UI 行为只做了静态等价验证：把
-  `lib/client.js` 放进模拟 rc.5 形状的 `__ModuleLoader__` + Cordis ctx 里执行，确认
-  `apply()` 不抛错、两个菜单项都能 resolve、overlay 组件能渲染出 `Modal`。
-  真实点击路径仍建议人工点一次菜单确认。
+- 真实浏览器点击链路仍建议人工确认一次（本机未开 CDP，无法自动驱动渲染进程）。
+  上一轮用户实测：菜单项可见；本轮已用真实 React 复现并修掉渲染异常。
 - 永久删除不可撤销，且不是安全擦除；仅接受「已归档 + 未加载 + 当前格式」的本机 JSONL 会话。
 - 归档搜索在有全文索引时走官方查询，无索引时退化为有限并发的官方事件筛选。

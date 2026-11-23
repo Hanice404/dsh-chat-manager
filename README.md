@@ -16,7 +16,7 @@
 在官方 DeepSeek Harness 0.2.2-rc.1 中打开 **插件 → 添加插件**，粘贴以下包名和版本：
 
 ```text
-dsh-chat-manager@2.1.0
+dsh-chat-manager@2.1.1
 ```
 
 更新到后续 v2 版本前，可查看[已验收的 DSH 版本](compatibility.json)。旧版说明见 [v1 维护分支](https://github.com/WSL043/dsh-chat-manager/tree/stable)。
