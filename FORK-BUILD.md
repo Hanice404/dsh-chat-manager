@@ -59,6 +59,13 @@ DSH="$APP/Contents/Resources/runtime/cli/bin/dsh"
 `plugin add` 会把包加进 profile 的 `dependencies` 与 `dsh.profile.bundles`；`patchReload: live`
 会自动重载，无需重启应用。
 
+本机 `github.com` 直连不稳定、`api.github.com` 正常；需要 git/pnpm 走外网时加代理：
+
+```sh
+export HTTPS_PROXY=http://127.0.0.1:7890
+git fetch origin && git reset --hard origin/main
+```
+
 安装后自检（会话 Cookie 之外的两条路由都应返回 401，未注册路径返回 405）：
 
 ```sh

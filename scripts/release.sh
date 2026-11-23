@@ -11,7 +11,9 @@
 #               Without it the script stops after pushing the tag.
 #
 # Environment:
-#   DRY=1       print the plan and create the tarball only
+#   HTTPS_PROXY   when github.com is unreachable directly, point git and curl at a
+#                 local proxy, for example HTTPS_PROXY=http://127.0.0.1:7890
+#   DRY=1         print the plan and create the tarball only
 #   OWNER/REPO  defaults to Hanice404/dsh-chat-manager
 set -eu
 
