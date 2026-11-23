@@ -7,7 +7,7 @@
 >
 > 我个人使用 [`@michengai/dsh-archive-manager`](https://github.com/MichengAI/dsh-archive-manager) 管理归档会话。现有自动流程仍可发布通过验收的兼容补丁。
 
-在 DeepSeek Harness 的 **设置 → 归档清理** 中搜索已归档的聊天内容。从会话行菜单或归档搜索结果打开永久删除。两个入口都会显示会话名称，并要求再次确认。
+在 DeepSeek Harness 的 **设置 → 归档清理** 中搜索已归档的聊天内容；profile 关闭设置界面时，改用会话右键菜单的 **归档清理…** 打开同一面板。从会话行菜单或归档搜索结果打开永久删除。两个入口都会显示会话名称，并要求再次确认。
 
 工作区、常规搜索、归档、恢复和会话菜单由 DSH 提供。归档搜索在官方查询达到结果上限前限定归档范围。关闭全文索引时，使用有限并发的官方事件筛选。
 
@@ -16,7 +16,7 @@
 在官方 DeepSeek Harness 0.2.2-rc.1 中打开 **插件 → 添加插件**，粘贴以下包名和版本：
 
 ```text
-dsh-chat-manager@2.0.1
+dsh-chat-manager@2.1.0
 ```
 
 更新到后续 v2 版本前，可查看[已验收的 DSH 版本](compatibility.json)。旧版说明见 [v1 维护分支](https://github.com/WSL043/dsh-chat-manager/tree/stable)。

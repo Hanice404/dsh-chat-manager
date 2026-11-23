@@ -1,49 +1,77 @@
-# Fork build 2.0.5 — 适配 DSH 0.2.2-rc.5
+# Fork build 2.1.0 — macOS / DSH 0.2.2-rc.5 兼容改造
 
 ## 基线
 
-上游 GitHub 仓库（`WSL043/dsh-chat-manager`）已被删除（HTTP 404），npm 上仍在发版。
-本构建取自 npm **`dsh-chat-manager@2.0.4`**（`registry.npmjs.org` 官方 tarball，带 npm provenance），
-该版本声明支持 `0.2.2-rc.3 || 0.2.2-rc.4`。
+- 上游仓库 `WSL043/dsh-chat-manager` 已删除（HTTP 404），npm 上仍有 `dsh-chat-manager@2.0.4`。
+- 本仓库 2.0.5 取自该 npm tarball，仅把 7 个 `@deepseek-ai/dsh-client-*` peer 扩到 `0.2.2-rc.5 || 0.2.2-rc.4 || 0.2.2-rc.3`。
+- 本机目标：**macOS 26.6.2 / DeepSeekRuntime 0.2.2-rc.5**（`dsh --version` 与
+  `app.asar/dsh/package.json` 一致），profile `~/.dsh/profiles/desktop`。
 
-## 改动（仅元数据，运行逻辑未改）
+## 本轮兼容性核查（对 0.2.2-rc.5 逐项对齐，均为只读证据）
+
+| 插件用到的接口 | rc.5 中的实际定义 | 结论 |
+| --- | --- | --- |
+| `ctx.contextMenus.register({ target: 'session' })` | `dsh-client-ui-context-menu/src/client/types.ts`：`ContextMenuTargetMap.session = { sessionId, displayTitle }`，`resolve(target, signal)`，`MenuAction` 支持 `danger / afterContent / icon / run` | 一致 |
+| `contextMenu.icon` 键控图标槽 | 官方 `dsh-client-ui-context-menu` 以 `children: { 'contextMenu.icon': { kind: 'keyed', scope: 'root', inline: true } }` 声明 | 一致 |
+| `shell.overlay` / `settings.section` 槽 | 两槽在 rc.5 均存在（settings 由 `dsh-client-ui-settings` 提供） | 一致 |
+| 根 props `useSessions` / `useWorkspaces` | `ctx.slots.provideRoot({ hooks: { sessions } })`（ui-session）、`{ hooks: { workspaces } }`（ui-workspace） | 无需显式 inject |
+| `sessionPersistence.stat / open('write') / resolveCurrentLog`、`config.root` | `dsh-session-persistence-jsonl/src/index.ts` 同名方法与 `formatStatus` / `header` / `location` 快照字段未变 | 一致 |
+| `workspaceRegistry.archivedSessionIds / unarchiveSession / unpinSession` | `dsh-workspace/src/index.ts` 同名公开方法 | 一致 |
+| `ctx.waterfall('workspace/session-activity')` | `dsh-workspace/src/index.ts` 同名 waterfall | 一致 |
+| `sessionQuery.searchSessions / filterEvents`、`SESSION_QUERY_SEARCH_DISABLED` | `dsh-session-query` 同名 API 与错误码 | 一致 |
+| `ctx.webServer.register({ kind: 'exact', path, handler })` | 未变，插件挂载后两条路由返回 401（认证门禁），未知路由 405 | 一致 |
+| `dsh.client.inject` 中 `@deepseek-ai/dsh-client-ui-primitives` | 该包不随 app.asar 发布，由浏览器模块表提供；加载器对 `inject` 中**不在图里的**包直接跳过（`dsh-client-modules/src/client/system.ts`） | 不会因缺包失败 |
+
+对照包（rc.4 与 rc.5 的 `dsh-client-ui-context-menu`、`dsh-client-ui-slots`、`dsh-session-query`、
+`dsh-session-persistence-jsonl`、`dsh-workspace`）tarball 字节完全一致，说明 rc.5 没有改动本插件依赖的 API。
+
+## 2.1.0 的改动
 
 | 文件 | 改动 |
 | --- | --- |
-| `package.json` | `version` `2.0.4` → `2.0.5`；7 个 `@deepseek-ai/dsh-client-*` peer 从 `0.2.2-rc.4 \|\| 0.2.2-rc.3` 扩展为 `0.2.2-rc.5 \|\| 0.2.2-rc.4 \|\| 0.2.2-rc.3` |
-| `compatibility.json` | `releaseTargets` 增加 `0.2.2-rc.5`，`latestTested` 改为 `0.2.2-rc.5`，新增 rc.5 的 upstream 完整性记录；移除只供上游自动跟随用的 `autoFollowFrom` |
-| 其余源码 `src/`、`lib/client.js`、`locale/`、`assets/` | 原样保留（与 2.0.4 逐字节一致） |
+| `lib/client.js` | 新增 **归档清理…** 会话菜单项 + `shell.overlay` 面板（`dsh-chat-manager.archive-panel`），复用既有 `ArchiveSettings` 主体（`compact` 模式隐藏重复标题） |
+| `package.json` | `version` `2.0.5` → `2.1.0`；peer 范围不变（仍为 rc.5 / rc.4 / rc.3） |
+| `README*.md` | 安装版本改为 `2.1.0`，补充新入口说明 |
+| `RELEASE-NOTES-v2.1.0.md` | 新增双语发布说明 |
+| `scripts/release.sh` | 新增 POSIX 发布脚本（macOS/Linux），兼容原有 PowerShell 版本 |
+| `FORK-BUILD.md` | 本文件，记录 macOS + rc.5 核查结论 |
 
-## 为什么只需要改 peer 声明
+### 为什么要加第二个入口
 
-`docs/upgrade-guide`（随 rc.5 安装包发布）中，`v0.2.2-rc.4` 一节只有一项变更：
-「DeepSeek 模型上的网页搜索默认改用旧版 Messages 搜索」——与本插件的 slot、服务、持久化 API 无关。
-`v0.2.2-rc.3` 一节只有 DeepSeek 拒答错误码变更。`v0.2.2-rc.1` 一节的条目经核对也不涉及本插件使用的
-`workspaceRegistry` / `sessionPersistence` / `webServer` / `connection` / `sessionQuery` /
-`contextMenus` / `settings.section` / `shell.overlay` 接口（其中「自定义 Client 浮层须声明窗口区域」仅影响 macOS）。
+`~/.dsh/profiles/desktop/cordis.patch.yml` 把 `@deepseek-ai/dsh-client-ui-settings` 设成
+`enabled: false`。此时 `settings.section` 槽永远不会出现，`ctx.slots.inject('settings.section', …)`
+只挂起不执行 —— 归档搜索/清理页面在本机**完全不可达**（2.0.5 文档里列为“已知限制”）。
+`shell.overlay` 由 `dsh-client-ui-context-menu` 无条件声明，因此把同一组件挂到 overlay、
+用会话右键菜单的 **归档清理…** 打开，可以绕开设置界面的开关状态。
 
-安装后实测：插件在 rc.5 宿主上正常挂载，两条 HTTP 路由均通过认证门禁（401），未知路径 405。
+设置界面可用时，`settings.section` 页面依旧照常注册，两条入口并存。
 
-## 安装 / 卸载
+## 安装 / 卸载（macOS）
 
-```powershell
-$dsh = 'D:\Program Files\DSH\resources\runtime\cli\bin\dsh.cmd'
-& $dsh plugin --profile desktop add 'file:E:\DeepSeekRuntime\APP\builds\2.0.5\dsh-chat-manager-2.0.5.tgz'
-& $dsh plugin --profile desktop remove dsh-chat-manager
+```sh
+APP="/Applications/DeepSeekRuntime.app"
+DSH="$APP/Contents/Resources/runtime/cli/bin/dsh"
+
+"$DSH" plugin --profile desktop add "file:$PWD/dsh-chat-manager-2.1.0.tgz"
+"$DSH" plugin --profile desktop remove dsh-chat-manager
 ```
 
-## 与 2.0.0-alpha.2 的行为差异（上游 2.0.x 自身的改进）
+`plugin add` 会把包加进 profile 的 `dependencies` 与 `dsh.profile.bundles`；`patchReload: live`
+会自动重载，无需重启应用。
 
-- 删除入口从「侧栏会话菜单项」改为官方 **会话右键菜单**（`ctx.contextMenus.register({ target: 'session' })`，
-  配 `contextMenu.icon` 槽注册图标），只对**已归档**会话出现。
-- 删除请求新增 `expectedArchived` 校验；宿主侧用 `ctx.waterfall('workspace/session-activity')`
-  询问其它组件该会话是否仍活跃，再做一次“归档状态已变即中止”的复核。
-- 归档标记的收尾改为 `reconcileDeletedArchive`（同时处理置顶状态），失败时如实报错。
-- 请求边界抽到 `src/host/plugin-request.mjs`。
+安装后自检（会话 Cookie 之外的两条路由都应返回 401，未注册路径返回 405）：
 
-## 已知限制
+```sh
+curl -s -o /dev/null -w '%{http_code}\n' -X POST http://127.0.0.1:<port>/plugins/dsh-session-delete/delete
+curl -s -o /dev/null -w '%{http_code}\n' -X POST http://127.0.0.1:<port>/plugins/dsh-session-delete/archive-search
+curl -s -o /dev/null -w '%{http_code}\n' -X POST http://127.0.0.1:<port>/plugins/dsh-session-delete/bogus
+```
 
-- 「设置 → 归档清理」页挂在 `settings.section` 槽上，而本机 profile 把
-  `@deepseek-ai/dsh-client-ui-settings` 设成了 `enabled: false`，该页不会渲染；
-  需要时改 `cordis.patch.yml` 那一行为 `true` 再重载。
+## 仍未验证 / 已知限制
+
+- 本机没有可用的页面自动化通道（未开 CDP），UI 行为只做了静态等价验证：把
+  `lib/client.js` 放进模拟 rc.5 形状的 `__ModuleLoader__` + Cordis ctx 里执行，确认
+  `apply()` 不抛错、两个菜单项都能 resolve、overlay 组件能渲染出 `Modal`。
+  真实点击路径仍建议人工点一次菜单确认。
 - 永久删除不可撤销，且不是安全擦除；仅接受「已归档 + 未加载 + 当前格式」的本机 JSONL 会话。
+- 归档搜索在有全文索引时走官方查询，无索引时退化为有限并发的官方事件筛选。

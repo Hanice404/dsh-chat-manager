@@ -7,7 +7,7 @@
 >
 > I use [`@michengai/dsh-archive-manager`](https://github.com/MichengAI/dsh-archive-manager) for my own archived chats. The existing automation may still publish compatibility patches that pass acceptance checks.
 
-DSH Chat Manager adds archive-only message search and confirmed cleanup to DeepSeek Harness. Open **Settings → Archive cleanup** to find archived messages. Use a session's context menu or an archive search result to request permanent deletion. Both entries show the session name and ask for confirmation.
+DSH Chat Manager adds archive-only message search and confirmed cleanup to DeepSeek Harness. Open **Settings → Archive cleanup**, or the **Archive cleanup…** entry in a session context menu, to find archived messages. Use a session's context menu or an archive search result to request permanent deletion. Both entries show the session name and ask for confirmation.
 
 DSH provides the workspace, regular search, archive, restore, and the shared session menu. The archive search narrows the official query to archived sessions before the result limit. It uses bounded event filtering when the optional full-text index is disabled.
 
@@ -16,7 +16,7 @@ DSH provides the workspace, regular search, archive, restore, and the shared ses
 Open **Plugins → Add plugin** in official DeepSeek Harness 0.2.2-rc.1 and paste this package spec:
 
 ```text
-dsh-chat-manager@2.0.1
+dsh-chat-manager@2.1.0
 ```
 
 Check the [qualified DSH versions](compatibility.json) for newer v2 releases. The [v1 maintenance line](https://github.com/WSL043/dsh-chat-manager/tree/stable) documents earlier versions.
